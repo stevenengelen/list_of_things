@@ -1,5 +1,3 @@
-var createPageHTML = '<button id = "createList">Create a new list</button><br><button id = "addItem">Add item</button><script src = "list_of_things.js"></script>';
-
 /* -------------- */
 /* the Controller */
 /* -------------- */
@@ -9,6 +7,19 @@ var controller = {
 	},
 	createItem : function(name) {
 		model.createItem(name);
+	},
+	deleteItem : function(index) {
+		model.deleteItem(index);
+	},
+	tickItem : function(index, state) {
+		model.tickItem(index, state);
+	},
+	resetList : function() {
+		model.resetList();
+	},
+
+	deleteList : function() {
+		model.deleteList();
 	}
 }
 
@@ -45,6 +56,31 @@ var model = {
 	createItem : function(name) {
 		this.activeList.createItem(name);
 		view.displayList(this.activeList);
+	},
+
+	deleteItem : function(index) {
+		this.activeList.deleteItem(index);
+		view.displayList(this.activeList);
+	},
+
+	tickItem : function(index, state) {
+		this.activeList.tickItem(index, state)
+	},
+
+	resetList : function() {
+		this.activeList.resetList();
+		view.displayList(this.activeList);
+	},
+
+	deleteList : function() {
+		var index = this.lists.indexOf(this.activeList);
+		if(index > -1) {
+			this.lists.splice(index, 1);
+			this.activeList = null;
+			view.displayCreatePage();
+		} else {
+			view.displayError('This list does not seem to exist. Strange.');
+		}
 	}
 }
 
@@ -63,6 +99,20 @@ List.prototype.writeList = function() {
 
 List.prototype.createItem = function(name) {
 	this.items.push(new Item(name));
+}
+
+List.prototype.deleteItem = function(index) {
+	this.items.splice(index);
+}
+
+List.prototype.tickItem = function(index, state) {
+	this.items[index].setState(state);
+}
+
+List.prototype.resetList = function() {
+	for(var i =0; i < this.items.length; i++) {
+		this.items[i].setState(false);
+	}
 }
 
 /* --------------- */
@@ -93,22 +143,33 @@ Item.prototype.setState = function(state) {
 /* the View */
 /* -------- */
 var view = {
+		createPageHTML : '<button id = "createList">Create a new list</button><br><script src = "list_of_things.js"></script>',
+	
 	displayList : function(list) {
 		// show the list page
 		var body = document.getElementsByTagName("body");
 		var bodyList = '<h1>' + list.name + '</h1>' + '<p>'
 		for(var i = 0; i < list.items.length; i++) {
 			var itemName = list.items[i].getName();
-			console.log(itemName);
-			bodyList = bodyList + '<input type = "checkbox" name = "' + itemName + '">' + itemName + '</br>';
+			var checkedString = '';
+			if(list.items[i].getState()) {
+				checkedString = 'checked';
+			}
+			bodyList = bodyList + '<input type = "checkbox" class = "checkboxItem" name = "' + i + '" ' + checkedString + '>' + itemName + '<button class = "deleteItemButton" name = "' + i + '">Delete</button></br>';
 		}
-		bodyList = bodyList + '</p>' + createPageHTML;
+		bodyList = bodyList + '</p><button id = "addItem">Add item</button><br><button id = "resetList">Reset list</button><br><button id = "deleteListButton">Delete list</button><br>' + this.createPageHTML;
 		body.item(0).innerHTML = bodyList;
 		init();
 	},
-
+	
 	displayError : function(msg) {
 		alert(msg);
+	},
+
+	displayCreatePage : function() {
+		var body = document.getElementsByTagName("body");
+		body.item(0).innerHTML = this.createPageHTML;
+		init();
 	}
 }
 
@@ -119,6 +180,26 @@ function init() {
 	var addItemButton = document.getElementById("addItem");
 	if(addItemButton) {
 		addItemButton.onclick = handleAddItem;
+	}
+
+	var deleteItemButtons = document.getElementsByClassName("deleteItemButton");
+	for(var i = 0; i < deleteItemButtons.length; i++) {
+		deleteItemButtons.item(i).onclick = handleDeleteItem;
+	}
+
+	var checkboxes = document.getElementsByClassName("checkboxItem");
+	for(var i = 0; i < checkboxes.length; i++) {
+		checkboxes.item(i).onclick = handleTickItem;
+	}
+
+	var resetListButton = document.getElementById("resetList");
+	if(resetListButton) {
+		resetListButton.onclick = handleResetList;
+	}
+
+	var deleteListButton = document.getElementById("deleteListButton");
+	if(deleteListButton) {
+		deleteListButton.onclick = handleDeleteList;
 	}
 }
 
@@ -133,6 +214,28 @@ function handleCreateList() {
 function handleAddItem() {
 	var itemName = prompt('Please enter the description of the entry in the list: ');
 	controller.createItem(itemName);
+}
+
+function handleDeleteItem(eventObj) {
+	var deleteButton = eventObj.target;
+	var index = deleteButton.getAttribute("name");
+
+	controller.deleteItem(index)
+}
+
+function handleTickItem(eventObj) {
+	var tickItem = eventObj.target;
+	var index = tickItem.getAttribute("name");
+
+	controller.tickItem(index, tickItem.checked)
+}
+
+function handleResetList() {
+	controller.resetList();
+}
+
+function handleDeleteList() {
+	controller.deleteList();
 }
 
 window.onload = init;
