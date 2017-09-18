@@ -115,6 +115,10 @@ List.prototype.resetList = function() {
 	}
 }
 
+List.prototype.getName = function() {
+	return this.name;
+}
+
 /* --------------- */
 /* the Item object */
 /* --------------- */
@@ -148,7 +152,11 @@ var view = {
 	displayList : function(list) {
 		// show the list page
 		var body = document.getElementsByTagName("body");
-		var bodyList = '<h1>' + list.name + '</h1>' + '<p>'
+		var bodyList = '';
+		for(var i = 0; i < model.lists.length; i++) {
+			bodyList = bodyList + '<button class = "selectListButton" id = "' + model.lists[i].getName() + '">' + model.lists[i].getName() + '</button><br>';
+		}
+		bodyList = bodyList + '<h1>' + list.name + '</h1>' + '<p>'
 		for(var i = 0; i < list.items.length; i++) {
 			var itemName = list.items[i].getName();
 			var checkedString = '';
@@ -201,6 +209,13 @@ function init() {
 	if(deleteListButton) {
 		deleteListButton.onclick = handleDeleteList;
 	}
+
+	var selectListButtons = document.getElementByClassName(selectListButton);
+	if(selectListButtons) {
+		for(var i = 0; i < selectListButtons.length; i++ ){
+			selectListButtons[i].onclick = handleSelectList;
+		}
+	}
 }
 
 /* -------- */
@@ -237,5 +252,9 @@ function handleResetList() {
 function handleDeleteList() {
 	controller.deleteList();
 }
+
+function handleSelectList(eventObj) {
+	var selectListButton = eventObj.target;
+	var selectedListName = selectListButton.getID
 
 window.onload = init;
