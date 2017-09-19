@@ -17,9 +17,11 @@ var controller = {
 	resetList : function() {
 		model.resetList();
 	},
-
 	deleteList : function() {
 		model.deleteList();
+	},
+	selectList : function(listName) {
+		model.selectList(listName);
 	}
 }
 
@@ -81,6 +83,19 @@ var model = {
 		} else {
 			view.displayError('This list does not seem to exist. Strange.');
 		}
+	},
+
+	selectList : function(listName) {
+		var indexOfListName = -1;
+		this.lists.find(function(value, index) {
+			if(value.getName() == this) {
+				indexOfListName = index;
+			}
+		}, listName);
+		if(indexOfListName > -1) {
+			this.activeList = this.lists[indexOfListName];
+		};
+		view.displayList(this.activeList);
 	}
 }
 
@@ -156,7 +171,7 @@ var view = {
 		for(var i = 0; i < model.lists.length; i++) {
 			bodyList = bodyList + '<button class = "selectListButton" id = "' + model.lists[i].getName() + '">' + model.lists[i].getName() + '</button><br>';
 		}
-		bodyList = bodyList + '<h1>' + list.name + '</h1>' + '<p>'
+		bodyList = bodyList + '<h1>' + list.getName() + '</h1>' + '<p>'
 		for(var i = 0; i < list.items.length; i++) {
 			var itemName = list.items[i].getName();
 			var checkedString = '';
@@ -210,7 +225,7 @@ function init() {
 		deleteListButton.onclick = handleDeleteList;
 	}
 
-	var selectListButtons = document.getElementByClassName(selectListButton);
+	var selectListButtons = document.getElementsByClassName("selectListButton");
 	if(selectListButtons) {
 		for(var i = 0; i < selectListButtons.length; i++ ){
 			selectListButtons[i].onclick = handleSelectList;
@@ -255,6 +270,8 @@ function handleDeleteList() {
 
 function handleSelectList(eventObj) {
 	var selectListButton = eventObj.target;
-	var selectedListName = selectListButton.getID
+	var selectedListName = selectListButton.getAttribute('id');
+	controller.selectList(selectedListName);
+}
 
 window.onload = init;
