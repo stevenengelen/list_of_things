@@ -28,8 +28,10 @@ var controller = {
 /* ---------- */
 /* the Model  */
 /* ---------- */
+
 var model = {
 	lists : [],
+	aciveList : null,
 
 	createList : function(name) {
 		if(this.listAlreadyExists(name)) {
@@ -37,13 +39,43 @@ var model = {
 		} else {
 			newList = new List(name);
 			this.lists.push(newList);
-			view.displayList(newList);
+			view.displayPage(newList);
 			this.activeList = newList;
+			this.writeListToLocalStorage();
 		}
 	}, 
 
 	loadLists : function(name) {
-		// get the json file and load a list
+		if(typeof(Storage) !== "undefined") {
+			for(var i = 0; i < localStorage.length; i++) {
+				var listData = JSON.parse(localStorage.getItem(localStorage.key(i)));
+				var list = new List(listData["name"]);
+				var items = listData["items"];
+				for(var j = 0; j < items.length; j++) {
+					var item = new Item(items[j]["name"]);
+					item.setState(items[j]["state"]);
+					list.items.push(item);
+				}
+				this.lists.push(list);
+			}
+			if(this.lists.length > 0) {
+				this.activeList = this.lists[0];
+				view.displayPage(this.activeList);
+			}
+			else {
+				view.displayPage(this.activeList);
+			}
+		} else {
+			console.log("Sorry, no local storage available");
+		}
+	},
+	
+	writeListToLocalStorage : function() {
+		localStorage.setItem(this.activeList.name, JSON.stringify(this.activeList));
+	},
+
+	removeListFromLocalStorage : function() {
+		localStorage.removeItem(this.activeList.name);
 	},
 
 	listAlreadyExists : function(name) {
@@ -57,29 +89,34 @@ var model = {
 
 	createItem : function(name) {
 		this.activeList.createItem(name);
-		view.displayList(this.activeList);
+		view.displayPage(this.activeList);
+		this.writeListToLocalStorage();
 	},
 
 	deleteItem : function(index) {
 		this.activeList.deleteItem(index);
-		view.displayList(this.activeList);
+		view.displayPage(this.activeList);
+		this.writeListToLocalStorage();
 	},
 
 	tickItem : function(index, state) {
 		this.activeList.tickItem(index, state)
+		this.writeListToLocalStorage();
 	},
 
 	resetList : function() {
 		this.activeList.resetList();
-		view.displayList(this.activeList);
+		view.displayPage(this.activeList);
+		this.writeListToLocalStorage();
 	},
 
 	deleteList : function() {
 		var index = this.lists.indexOf(this.activeList);
 		if(index > -1) {
 			this.lists.splice(index, 1);
+			this.removeListFromLocalStorage();
 			this.activeList = null;
-			view.displayCreatePage();
+			view.displayPage(this.activeList);
 		} else {
 			view.displayError('This list does not seem to exist. Strange.');
 		}
@@ -95,7 +132,7 @@ var model = {
 		if(indexOfListName > -1) {
 			this.activeList = this.lists[indexOfListName];
 		};
-		view.displayList(this.activeList);
+		view.displayPage(this.activeList);
 	}
 }
 
@@ -105,11 +142,6 @@ var model = {
 function List(name) {
 	this.name = name;
 	this.items = [];
-}
-
-List.prototype.writeList = function() {
-	// write the list to a file
-	console.log(JSON.stringify(this));
 }
 
 List.prototype.createItem = function(name) {
@@ -162,37 +194,43 @@ Item.prototype.setState = function(state) {
 /* the View */
 /* -------- */
 var view = {
-		createPageHTML : '<button id = "createList">Create a new list</button><br><script src = "list_of_things.js"></script>',
+	createListHTML : '<button id = "createList">Create a new list</button><br>',
+	endOfPageHTML : '<script src = "list_of_things.js"></script><script src = "list_of_things_data.js></script>',
+	listOperationsHTML : '</p><button id = "addItem">Add item</button> <button id = "resetList">Reset list</button> <button id = "deleteListButton">Delete list</button><br>',
+
+	displayListButtons : function() {
+		var output = '';
+		for(var i = 0; i < model.lists.length; i++) {
+			output = output + '<button class = "selectListButton" id = "' + model.lists[i].getName() + '">' + model.lists[i].getName() + '</button>     ';
+		}
+		return output;
+	},
 	
 	displayList : function(list) {
-		// show the list page
-		var body = document.getElementsByTagName("body");
-		var bodyList = '';
-		for(var i = 0; i < model.lists.length; i++) {
-			bodyList = bodyList + '<button class = "selectListButton" id = "' + model.lists[i].getName() + '">' + model.lists[i].getName() + '</button><br>';
-		}
-		bodyList = bodyList + '<h1>' + list.getName() + '</h1>' + '<p>'
-		for(var i = 0; i < list.items.length; i++) {
-			var itemName = list.items[i].getName();
-			var checkedString = '';
-			if(list.items[i].getState()) {
-				checkedString = 'checked';
+		var output = '';
+		if(list) {
+			output = '<h1>' + list.getName() + '</h1>' + '<p>'
+			for(var i = 0; i < list.items.length; i++) {
+				var itemName = list.items[i].getName();
+				var checkedString = '';
+				if(list.items[i].getState()) {
+					checkedString = 'checked';
+				}
+				output = output + '<input type = "checkbox" class = "checkboxItem" name = "' + i + '" ' + checkedString + '>' + itemName + ' <button class = "deleteItemButton" name = "' + i + '">Delete</button></br>';
 			}
-			bodyList = bodyList + '<input type = "checkbox" class = "checkboxItem" name = "' + i + '" ' + checkedString + '>' + itemName + '<button class = "deleteItemButton" name = "' + i + '">Delete</button></br>';
 		}
-		bodyList = bodyList + '</p><button id = "addItem">Add item</button><br><button id = "resetList">Reset list</button><br><button id = "deleteListButton">Delete list</button><br>' + this.createPageHTML;
-		body.item(0).innerHTML = bodyList;
+		return output
+	},
+
+	displayPage : function(list) {
+		var body = document.getElementsByTagName("body");
+		var output = this.displayListButtons() + this.displayList(list) + this.listOperationsHTML + this.createListHTML + this.endOfPageHTML;
+		body.item(0).innerHTML = output;
 		init();
 	},
 	
 	displayError : function(msg) {
 		alert(msg);
-	},
-
-	displayCreatePage : function() {
-		var body = document.getElementsByTagName("body");
-		body.item(0).innerHTML = this.createPageHTML;
-		init();
 	}
 }
 
@@ -274,4 +312,5 @@ function handleSelectList(eventObj) {
 	controller.selectList(selectedListName);
 }
 
+model.loadLists();
 window.onload = init;
