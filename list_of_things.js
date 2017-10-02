@@ -149,7 +149,7 @@ List.prototype.createItem = function(name) {
 }
 
 List.prototype.deleteItem = function(index) {
-	this.items.splice(index);
+	this.items.splice(index, 1);
 }
 
 List.prototype.tickItem = function(index, state) {
