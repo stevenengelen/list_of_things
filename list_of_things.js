@@ -195,21 +195,21 @@ Item.prototype.setState = function(state) {
 /* -------- */
 var view = {
 	createListHTML : '<button id = "createList">Create a new list</button><br>',
-	endOfPageHTML : '<script src = "list_of_things.js"></script><script src = "list_of_things_data.js></script>',
-	listOperationsHTML : '</p><button id = "addItem">Add item</button> <button id = "resetList">Reset list</button> <button id = "deleteListButton">Delete list</button><br>',
+	endOfPageHTML : '</div></div><script src = "list_of_things.js"></script><script src = "list_of_things_data.js></script>',
+	listOperationsHTML : '</p><div class = "btn-toolbar" role = "toolbar"><div class ="btn-group mr-2" role = "group"><button id = "addItem">Add item</button> <button id = "resetList">Reset list</button> <button id = "deleteListButton">Delete list</button></div></div><br>',
 
 	displayListButtons : function() {
-		var output = '';
+		var output = '<div class = "container"><div class = "jumbotron"><div class = "btn-group">';
 		for(var i = 0; i < model.lists.length; i++) {
 			output = output + '<button class = "selectListButton" id = "' + model.lists[i].getName() + '">' + model.lists[i].getName() + '</button>     ';
 		}
-		return output;
+		return output + '</div>';
 	},
 	
 	displayList : function(list) {
 		var output = '';
 		if(list) {
-			output = '<h1>' + list.getName() + '</h1>' + '<p>'
+			output = output + '<h1>' + list.getName() + '</h1>' + '<p>'
 			for(var i = 0; i < list.items.length; i++) {
 				var itemName = list.items[i].getName();
 				var checkedString = '';
