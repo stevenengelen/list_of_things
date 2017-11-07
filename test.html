@@ -4,34 +4,111 @@
 		<meta charset = "utf-8">
 		<title>Testpage to try things out</title>
 <style>
-#sidebar {
-	width : 280px;
-	float : right;
+nav {
+	height : 1080px;
+	list-style-type : none;
+	margin-left : 5px;
+	margin-right : 5px;
+	border-width : thin;
+	float : left;
+}
+
+.menu {
+	padding : 0px;
+	padding-top : 5px;
+	margin : 0px;
+}
+
+li {
+	display : block;
+	text-align : center;
+	padding : 5px;
+}
+
+.menu li:hover, .active {
+	background-color: #555;
+	color : white;
+}
+
+#createNewList, #createNewItem {
+	color : grey;
+}
+
+#createNewItem {
+	padding-top : 2px;
+	border-style : none;
+}
+
+.dropdown {
+	position : relative;
+	display : inline-block;
+}
+
+.popupContent {
+	display : none;
+	position : absolute;
+	top : 0px;
+	left : 100%;
+	background-color : #f9f9f9;
+	min-width : 100%;
+	overflow : auto;
+}
+
+.popupContent a:hover {
+	background-color : #ffffff;
+}
+
+.show {
+	display : block;
 }
 </style>
 	</head>
 	<body>
-		<!--These things should come in a navigation-->
-		<nav id = "sidebar">
-			<button>My first list</button>
-			<button>My second list</button>
+		<nav>
+			<ul class = "menu">
+				<li class = "active">My first list</li>
+				<li>My second list</li>
+				<li id = "createNewList"><i>+ New list</i></li>
+			</ul>
 		</nav>
-		<p>
 		<h1>My first list</h1>
-		<input type = "checkbox">My first item<br>
-		<input type = "checkbox">My second item
-		</p>
-		<p>
-		<!--These things should come in a menu-->
-		<button>Add item</button>
-		<button>Reset list</button>
-		<button>Delete list</button>
-		</p>
-		<p>
-		<button>Create a new list</button>
+		<div class = "dropdown">
+		  <input type = "checkbox"><span oncontextmenu = "myFunction()">My first item<br></span>
+			<div id = "popupMenu" class = "popupContent">
+				Edit Item - Delete item
+			</div>
+		</div>
+		<br>
+			<input type = "checkbox"><span oncontextmenu = "myFunction()">My second item<br></span>
+			<span> +<input type = "text" id = "createNewItem" value = " New item"><br></span>
+			<div id = "popupMenu" class = "popupContent">
+				Edit Item - Delete item
+			</div>
+			<!-- </div> -->
+		<menu type = "toolbar">
+			<li>Reset list</li>
+			<li>Delete list</li>
+		</menu>
 	</body>
+	<script>
+		function myFunction() {
+			console.log("in myFunction()");
+			document.getElementById("popupMenu").classList.toggle("show");
+		}
+	</script>
 </html>
 
-<!--	Create an edit items mode, in which you can add/delete/update items
-			Create list, reset list and delete list behind the +
-			List selection behind the lined menu button -->
+<!--	Create an edit items mode activated by a right click, in which you can delete/update items, add item via a + at the bottom of the list.
+			Create list at the bottom of the list, reset list and delete list behind a + button.
+			List selection behind the lined menu button if on smartphone, else left menu -->
+
+<!--	TODO
+			
+			- context menu must be shown to the right of the item
+			- standard context menu must not be shown on right click
+			- hover on contextmenuitem must show other background
+			- click on contextmenuitem must do something
+			- add listitem must be cleaner
+			- select other list must show other list
+			- list item block must be 100% for everything, so that the edit and delete button line up for every list item at the end
+-->
