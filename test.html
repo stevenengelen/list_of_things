@@ -35,7 +35,7 @@ li {
 }
 
 #createNewItem {
-	padding-top : 2px;
+	padding-top : 3px;
 	border-style : none;
 }
 
@@ -47,10 +47,13 @@ li {
 .popupContent {
 	display : none;
 	position : absolute;
-	top : 0px;
-	left : 100%;
-	background-color : #f9f9f9;
-	min-width : 100%;
+	top : 2px;
+	left : 120%;
+	/* background-color : #f9f9f9; */
+	background-color: #555;
+	color : white;
+	/* min-width : fit-content; */
+	min-width : 300%; 
 	overflow : auto;
 }
 
@@ -61,9 +64,54 @@ li {
 .show {
 	display : block;
 }
+
+.listOperations {
+	list-style-type : none;
+}
+
+.icon-bar {
+	height : 100%;
+	padding : 5px;
+	margin-left : 5px;
+	margin-right : 5px;
+	/* width : 90px; */
+	/* text-align : center; */
+	background-color : #555;
+}
+
+.icon-bar a {
+	/* padding : 1px; */
+	/* display : block; */
+	transition : all 0.3s ease;
+	color : white;
+	/* font-size : 36px; */
+}
+
+.icon-bar a:hover {
+	background-color : #000;
+}
+
+.active {
+	/* background-color : #4CAF50; */
+}
+
+h1 {
+	margin-top : 0px;
+	margin-bottom : 0px;
+}
+
+body {
+	width : 800px;
+	margin-left : auto;
+	margin-right : auto;
+}
 </style>
 	</head>
 	<body>
+		<div class = "icon-bar">
+			<a href = "#">Reset list</a>
+			<a href = "#">Delete list</a>
+		</div>
 		<nav>
 			<ul class = "menu">
 				<li class = "active">My first list</li>
@@ -73,28 +121,37 @@ li {
 		</nav>
 		<h1>My first list</h1>
 		<div class = "dropdown">
-		  <input type = "checkbox"><span oncontextmenu = "myFunction()">My first item<br></span>
-			<div id = "popupMenu" class = "popupContent">
+			<input type = "checkbox" class = "checkboxItem" name = "0"><span class = "checkboxItemText" name = "0">My first item</span><br>
+			<div id = "popupContent0" class = "popupContent">
 				Edit Item - Delete item
 			</div>
 		</div>
 		<br>
-			<input type = "checkbox"><span oncontextmenu = "myFunction()">My second item<br></span>
-			<span> +<input type = "text" id = "createNewItem" value = " New item"><br></span>
-			<div id = "popupMenu" class = "popupContent">
+		<div class = "dropdown">
+			<input type = "checkbox" name = "1"><span class = "checkboxItemText" name = "1">My second item<br></span>
+			<div id = "popupContent1" class = "popupContent">
 				Edit Item - Delete item
 			</div>
-			<!-- </div> -->
-		<menu type = "toolbar">
-			<li>Reset list</li>
-			<li>Delete list</li>
-		</menu>
+		</div>
+		<br>
+		<span> +<input type = "text" id = "createNewItem" value = " New item"><br></span>
 	</body>
 	<script>
-		function myFunction() {
-			console.log("in myFunction()");
-			document.getElementById("popupMenu").classList.toggle("show");
+		function init() {
+			var checkboxItemTexts = document.getElementsByClassName("checkboxItemText");
+			for(var i = 0; i < checkboxItemTexts.length; i++) {
+				checkboxItemTexts.item(i).onclick = myFunction;
+			}
 		}
+
+		function myFunction(eventObj) {
+			console.log("in myFunction()");
+			var checkboxItemText = eventObj.target;
+			var index = checkboxItemText.getAttribute("name");
+			console.log("popupContent" + index);
+			document.getElementById("popupContent" + index).classList.toggle("show");
+		}
+		window.onload = init;
 	</script>
 </html>
 
@@ -104,11 +161,8 @@ li {
 
 <!--	TODO
 			
-			- context menu must be shown to the right of the item
-			- standard context menu must not be shown on right click
 			- hover on contextmenuitem must show other background
 			- click on contextmenuitem must do something
 			- add listitem must be cleaner
-			- select other list must show other list
 			- list item block must be 100% for everything, so that the edit and delete button line up for every list item at the end
 -->
