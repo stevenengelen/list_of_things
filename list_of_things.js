@@ -31,7 +31,7 @@ var controller = {
 
 var model = {
 	lists : [],
-	aciveList : null,
+	activeList : null,
 
 	createList : function(name) {
 		if(this.listAlreadyExists(name)) {
@@ -54,6 +54,7 @@ var model = {
 				for(var j = 0; j < items.length; j++) {
 					var item = new Item(items[j]["name"]);
 					item.setState(items[j]["state"]);
+					// console.log("model.loadLists name " + item.getName() + " state " + item.getState());
 					list.items.push(item);
 				}
 				this.lists.push(list);
@@ -66,7 +67,7 @@ var model = {
 				view.displayPage(this.activeList);
 			}
 		} else {
-			console.log("Sorry, no local storage available");
+			alert("Sorry, no local storage available");
 		}
 	},
 	
@@ -102,6 +103,7 @@ var model = {
 	tickItem : function(index, state) {
 		this.activeList.tickItem(index, state)
 		this.writeListToLocalStorage();
+		console.log("model.tickItem at " + index + " is in state " + state);
 	},
 
 	resetList : function() {
@@ -194,16 +196,26 @@ Item.prototype.setState = function(state) {
 /* the View */
 /* -------- */
 var view = {
-	createListHTML : '<button id = "createList">Create a new list</button><br>',
-	endOfPageHTML : '</div></div><script src = "list_of_things.js"></script><script src = "list_of_things_data.js></script>',
-	listOperationsHTML : '</p><div class = "btn-toolbar" role = "toolbar"><div class ="btn-group mr-2" role = "group"><button id = "addItem">Add item</button> <button id = "resetList">Reset list</button> <button id = "deleteListButton">Delete list</button></div></div><br>',
+	createListHTML : '<nav><ul class = "menu"><li id = "createList"><i>+ New list</i></li></ul></nav>',
+	endOfPageHTML : '<script src = "list_of_things.js"></script><script src = "list_of_things_data.js></script>',
 
-	displayListButtons : function() {
-		var output = '<div class = "container"><div class = "jumbotron"><div class = "btn-group">';
+	listOperationsHTML : '<div class = "listOperations"><span class = "listOperation" id = "resetList">Reset list</span><span class = "listOperation" id = "deleteList">Delete list</span></div>',
+/*
+	listOperationsHTML : '<div class = "listOperations"><span class = "listOperation">Reset list</span><span class = "listOperation">Delete list</span></div>',
+
+	listOperationsHTML : '</p><div class = "btn-toolbar" role = "toolbar"><div class ="btn-group mr-2" role = "group"><button id = "addItem">Add item</button> <button id = "resetList">Reset list</button> <button id = "deleteListButton">Delete list</button></div></div><br>',
+*/
+
+	displayListButtons : function(list) {
+		var output = '<nav><ul class = "menu">';
 		for(var i = 0; i < model.lists.length; i++) {
-			output = output + '<button class = "selectListButton" id = "' + model.lists[i].getName() + '">' + model.lists[i].getName() + '</button>     ';
+			var list_classes = 'class = "list"';
+			if(model.lists[i] == list) {
+				list_classes = 'class = "list, active"';
+			}
+			output = output + '<li ' + list_classes + ' id = "' + model.lists[i].getName() + '">' + model.lists[i].getName() + '</li>';	
 		}
-		return output + '</div>';
+		return output = output + '<li id = "createList"><i>+ New list</i></li></ul></nav>';	
 	},
 	
 	displayList : function(list) {
@@ -216,15 +228,22 @@ var view = {
 				if(list.items[i].getState()) {
 					checkedString = 'checked';
 				}
-				output = output + '<input type = "checkbox" class = "checkboxItem" name = "' + i + '" ' + checkedString + '>' + itemName + ' <button class = "deleteItemButton" name = "' + i + '">Delete</button></br>';
+				output = output + '<div class = "dropdown"><input type = "checkbox" class = "checkboxItem" name = "' + i + '" ' + checkedString + '><span class = "checkboxItemText" name = "' + i +'">' + itemName + '</span><br><div id = "popupContent' + i + '" class = "popupContent"><span class = "popupItem">Edit Item</span><span class = "popupItem">Delete item</span></div></div><br>';
+
+					
+					
+/*	
+					'<input type = "checkbox" class = "checkboxItem" name = "' + i + '" ' + checkedString + '>' + itemName + ' <button class = "deleteItemButton" name = "' + i + '">Delete</button></br>';
+*/
 			}
 		}
-		return output
+		return output + '<span> +<input type = "text" id = "addItem" value = " New item"><br></span>';
 	},
 
 	displayPage : function(list) {
 		var body = document.getElementsByTagName("body");
-		var output = this.displayListButtons() + this.displayList(list) + this.listOperationsHTML + this.createListHTML + this.endOfPageHTML;
+		var output = this.listOperationsHTML + this.displayListButtons(list) + this.displayList(list) + this.endOfPageHTML;
+		console.log(output);
 		body.item(0).innerHTML = output;
 		init();
 	},
@@ -235,39 +254,52 @@ var view = {
 }
 
 function init() {
-	var createListButton = document.getElementById("createList");
-	createListButton.onclick = handleCreateList;
+	var createListInput = document.getElementById("createList");
+	createListInput.onclick = handleCreateList;
 
-	var addItemButton = document.getElementById("addItem");
-	if(addItemButton) {
-		addItemButton.onclick = handleAddItem;
+	var addItemInput = document.getElementById("addItem");
+	if(addItemInput) {
+		addItemInput.onclick = handleAddItem;
 	}
 
+	/*
 	var deleteItemButtons = document.getElementsByClassName("deleteItemButton");
 	for(var i = 0; i < deleteItemButtons.length; i++) {
 		deleteItemButtons.item(i).onclick = handleDeleteItem;
 	}
+	*/
 
 	var checkboxes = document.getElementsByClassName("checkboxItem");
 	for(var i = 0; i < checkboxes.length; i++) {
 		checkboxes.item(i).onclick = handleTickItem;
 	}
-
+	
 	var resetListButton = document.getElementById("resetList");
 	if(resetListButton) {
 		resetListButton.onclick = handleResetList;
 	}
 
-	var deleteListButton = document.getElementById("deleteListButton");
+	var deleteListButton = document.getElementById("deleteList");
 	if(deleteListButton) {
 		deleteListButton.onclick = handleDeleteList;
 	}
 
-	var selectListButtons = document.getElementsByClassName("selectListButton");
+	var selectListButtons = document.getElementsByClassName("list");
 	if(selectListButtons) {
 		for(var i = 0; i < selectListButtons.length; i++ ){
 			selectListButtons[i].onclick = handleSelectList;
 		}
+	}
+
+	var checkboxItemTexts = document.getElementsByClassName("checkboxItemText");
+	for(var i = 0; i < checkboxItemTexts.length; i++) {
+		checkboxItemTexts.item(i).onclick = initPopup;
+	}
+	function initPopup(eventObj) {
+		var checkboxItemText = eventObj.target;
+		var index = checkboxItemText.getAttribute("name");
+		console.log("popupContent" + index);
+		document.getElementById("popupContent" + index).classList.toggle("show");
 	}
 }
 
@@ -314,3 +346,16 @@ function handleSelectList(eventObj) {
 
 model.loadLists();
 window.onload = init;
+window.onclick = function(event) {
+	if (!event.target.matches('.checkboxItemText')) {
+
+		var dropdowns = document.getElementsByClassName("popupContent");
+		var i;
+		for (i = 0; i < dropdowns.length; i++) {
+			var openDropdown = dropdowns[i];
+			if (openDropdown.classList.contains('show')) {
+				openDropdown.classList.remove('show');
+			}
+		}
+	}
+}
