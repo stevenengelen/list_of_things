@@ -36,7 +36,10 @@ var model = {
 	createList : function(name) {
 		if(this.listAlreadyExists(name)) {
 			view.displayError('List ' + name + ' already exists. Please choose another name for your list.');
-		} else {
+		} else if(name === null) {
+			view.displayError('The list must have a name.');
+		}
+		else {
 			newList = new List(name);
 			this.lists.push(newList);
 			view.displayPage(newList);
@@ -200,11 +203,6 @@ var view = {
 	endOfPageHTML : '<script src = "list_of_things.js"></script><script src = "list_of_things_data.js></script>',
 
 	listOperationsHTML : '<div class = "listOperations"><span class = "listOperation" id = "resetList">Reset list</span><span class = "listOperation" id = "deleteList">Delete list</span></div>',
-/*
-	listOperationsHTML : '<div class = "listOperations"><span class = "listOperation">Reset list</span><span class = "listOperation">Delete list</span></div>',
-
-	listOperationsHTML : '</p><div class = "btn-toolbar" role = "toolbar"><div class ="btn-group mr-2" role = "group"><button id = "addItem">Add item</button> <button id = "resetList">Reset list</button> <button id = "deleteListButton">Delete list</button></div></div><br>',
-*/
 
 	displayListButtons : function(list) {
 		var output = '<nav><ul class = "menu">';
@@ -215,7 +213,7 @@ var view = {
 			}
 			output = output + '<li ' + list_classes + ' id = "' + model.lists[i].getName() + '">' + model.lists[i].getName() + '</li>';	
 		}
-		return output = output + '<li id = "createList"><i>+ New list</i></li></ul></nav>';	
+		return output = output + '<li>+<input type = "text" id = "createList" value = "New list"></li></ul></nav>';	
 	},
 	
 	displayList : function(list) {
@@ -228,22 +226,21 @@ var view = {
 				if(list.items[i].getState()) {
 					checkedString = 'checked';
 				}
-				output = output + '<div class = "dropdown"><input type = "checkbox" class = "checkboxItem" name = "' + i + '" ' + checkedString + '><span class = "checkboxItemText" name = "' + i +'">' + itemName + '</span><br><div id = "popupContent' + i + '" class = "popupContent"><span class = "popupItem">Edit Item</span><span class = "popupItem">Delete item</span></div></div><br>';
-
-					
-					
-/*	
-					'<input type = "checkbox" class = "checkboxItem" name = "' + i + '" ' + checkedString + '>' + itemName + ' <button class = "deleteItemButton" name = "' + i + '">Delete</button></br>';
-*/
+				// with the edit item option
+				/*
+				output = output + '<div class = "dropdown"><input type = "checkbox" class = "checkboxItem" name = "' + i + '" ' + checkedString + '><span class = "checkboxItemText" name = "' + i +'">' + itemName + '</span><br><div id = "popupContent' + i + '" class = "popupContent"><span class = "popupItem" id = "editItem">Edit Item</span><span class = "popupItem" id = "deleteItem">Delete item</span></div></div><br>';
+				*/
+				// without the edit item option
+				output = output + '<div class = "dropdown"><input type = "checkbox" class = "checkboxItem" name = "' + i + '" ' + checkedString + '><span class = "checkboxItemText" name = "' + i +'">' + itemName + '</span><br><div id = "popupContent' + i + '" class = "popupContent"><span class = "popupItem" id = "deleteItem">Delete item</span></div></div><br>';
 			}
 		}
-		return output + '<span> +<input type = "text" id = "addItem" value = " New item"><br></span>';
+		return output + '<span> +<input type = "text" id = "addItem" value = "New item"><br></span>';
 	},
 
 	displayPage : function(list) {
 		var body = document.getElementsByTagName("body");
 		var output = this.listOperationsHTML + this.displayListButtons(list) + this.displayList(list) + this.endOfPageHTML;
-		console.log(output);
+		// console.log(output);
 		body.item(0).innerHTML = output;
 		init();
 	},
@@ -255,19 +252,16 @@ var view = {
 
 function init() {
 	var createListInput = document.getElementById("createList");
-	createListInput.onclick = handleCreateList;
+	if(createListInput) {
+		createListInput.onchange = handleCreateList;
+		createListInput.onclick = handleClearFieldOnClick;
+	}
 
 	var addItemInput = document.getElementById("addItem");
 	if(addItemInput) {
-		addItemInput.onclick = handleAddItem;
+		addItemInput.onchange = handleAddItem;
+		addItemInput.onclick = handleClearFieldOnClick;
 	}
-
-	/*
-	var deleteItemButtons = document.getElementsByClassName("deleteItemButton");
-	for(var i = 0; i < deleteItemButtons.length; i++) {
-		deleteItemButtons.item(i).onclick = handleDeleteItem;
-	}
-	*/
 
 	var checkboxes = document.getElementsByClassName("checkboxItem");
 	for(var i = 0; i < checkboxes.length; i++) {
@@ -295,28 +289,43 @@ function init() {
 	for(var i = 0; i < checkboxItemTexts.length; i++) {
 		checkboxItemTexts.item(i).onclick = initPopup;
 	}
+
+
 	function initPopup(eventObj) {
 		var checkboxItemText = eventObj.target;
 		var index = checkboxItemText.getAttribute("name");
 		console.log("popupContent" + index);
 		document.getElementById("popupContent" + index).classList.toggle("show");
+
+		var deleteItemObject = document.getElementById("deleteItem");
+		if(deleteItemObject) {
+			console.log("deleteItemObject found");
+			deleteItemObject.onclick = handleDeleteItem;
+		}
 	}
 }
 
 /* -------- */
 /* handlers */
 /* -------- */
-function handleCreateList() {
-	var listInputName = prompt('Please enter the list name: ');
-	controller.createList(listInputName);
+function handleCreateList(eventObj) {
+	var createListTextBox = eventObj.target;
+	var newListName = createListTextBox.value;
+	if(newListName != null) {
+		controller.createList(newListName);
+	}
 }
 
-function handleAddItem() {
-	var itemName = prompt('Please enter the description of the entry in the list: ');
-	controller.createItem(itemName);
+function handleAddItem(eventObj) {
+	var addItemTextBox = eventObj.target;
+	var itemName = addItemTextBox.value;
+	if(itemName != null) {
+		controller.createItem(itemName);
+	}
 }
 
 function handleDeleteItem(eventObj) {
+	console.log("in handleDeleteItem");
 	var deleteButton = eventObj.target;
 	var index = deleteButton.getAttribute("name");
 
@@ -328,6 +337,11 @@ function handleTickItem(eventObj) {
 	var index = tickItem.getAttribute("name");
 
 	controller.tickItem(index, tickItem.checked)
+}
+
+function handleClearFieldOnClick(eventObj) {
+	var field = eventObj.target;
+	field.value = "";
 }
 
 function handleResetList() {

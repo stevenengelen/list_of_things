@@ -15,7 +15,7 @@ nav {
 
 li {
 	display : block;
-	text-align : center;
+	/* text-align : center; */
 	padding : 5px;
 	/* margin : 5px; */
 }
@@ -30,13 +30,13 @@ li {
 	background-color : #000;
 }
 
-#createNewList, #createNewItem {
+#createList, #addItem {
 	color : grey;
+	border-style : none;
 }
 
-#createNewItem {
+#addItem {
 	padding-top : 3px;
-	border-style : none;
 }
 
 .dropdown {
@@ -51,7 +51,10 @@ li {
 	left : 120%;
 	background-color: #555;
 	color : white;
-	min-width : 190px;
+	/* with the edit item option */
+	/* min-width : 190px; */
+	/* without the edit item option */
+	min-width : 105px;
 	min-height : 25px;
 	overflow : auto;
 	padding : 5px 0px 0px 0px;
