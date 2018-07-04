@@ -1,0 +1,102 @@
+nav {
+	height : 1080px;
+	list-style-type : none;
+	margin-left : 5px;
+	margin-right : 5px;
+	border-width : thin;
+	float : left;
+}
+
+.menu {
+	padding : 0px;
+	padding-top : 5px;
+	margin : 0px;
+}
+
+li {
+	display : block;
+	/* text-align : center; */
+	padding : 5px;
+	/* margin : 5px; */
+}
+
+.menu .active {
+	background-color: #555;
+	color : white;
+}
+
+.menu li:hover {
+	color : white;
+	background-color : #000;
+}
+
+#createList, #addItem {
+	color : grey;
+	border-style : none;
+}
+
+#addItem {
+	padding-top : 3px;
+}
+
+.dropdown {
+	position : relative;
+	display : inline-block;
+}
+
+.popupContent {
+	display : none;
+	position : absolute;
+	top : 0px;
+	left : 120%;
+	background-color: #555;
+	color : white;
+	/* with the edit item option */
+	/* min-width : 190px; */
+	/* without the edit item option */
+	min-width : 105px;
+	min-height : 25px;
+	overflow : auto;
+	padding : 5px 0px 0px 0px;
+}
+
+.popupItem {
+	padding : 5px;
+	text-align : center;
+}
+
+.popupItem:hover {
+	background-color : #000;
+}
+
+.show {
+	display : block;
+}
+
+.listOperations {
+	height : 100%;
+	padding : 5px 0px 5px 0px;
+  margin-left : 5px;
+	margin-right : 5px; 
+	background-color : #555;
+}
+
+.listOperation {
+	padding : 5px;
+	color : white;
+}
+
+.listOperation:hover {
+	background-color : #000;
+}
+
+h1 {
+	margin-top : 0px;
+	margin-bottom : 0px;
+}
+
+body {
+	width : 800px;
+	margin-left : auto;
+	margin-right : auto;
+}
